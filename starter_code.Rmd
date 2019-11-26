@@ -128,3 +128,39 @@ metrics(x_2, truth = dvote, estimate = pred_dvote) %>%
 
 ```
 
+```{r}
+# Clean up the above code to make it cleaner. Key functions: logistic_reg(), 
+# set_engine(), fit(), predict(), bind_cols(), metrics()
+
+logistic_reg() %>%
+  set_engine("glm") %>%
+  fit(dvote ~ gender + party + state + office, data = clean) %>%
+  predict(new_data = clean) %>%
+  bind_cols(clean) %>%
+  metrics(truth = dvote, estimate = .pred_class) %>% 
+  gt() %>% 
+    tab_header("Model 2 Evaluation on All Data")
+
+# We are concerned if this model is overfitted. 
+# Lets do this again with 1% of the data.
+```
+
+```{r}
+# Split data into train & test
+
+split <- 
+  initial_split(data = clean, prop = 1/100)
+
+train <- training(split)
+testing <- testing(split)
+
+logistic_reg() %>%
+  set_engine("glm") %>%
+  fit(dvote ~ gender + party + state + office, data = train) %>%
+  predict(new_data = train) %>%
+  bind_cols(train) %>%
+  metrics(truth = dvote, estimate = .pred_class) %>% 
+  gt() %>% 
+    tab_header("Model 2 Evaluation on All Data")
+```
+
